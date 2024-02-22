@@ -2,3 +2,5 @@ secret
 /test.db
 /VVZScraper.java
 numbersAndNames.txt
+.venv
+__pycache__

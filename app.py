@@ -41,7 +41,6 @@ def get_reviews(course_number: str) -> list[Review]:
     reviews = [Review(review=review["Review"], semester=review["Semester"]) for review in result]
     return reviews
 
-
 @app.route("/")
 def index():
     course = request.args.get("course", None)

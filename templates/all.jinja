@@ -1,0 +1,12 @@
+{% extends 'base.jinja' %}
+
+{% block content %}
+    <p><b>All courses with Reviews</b></p>
+    <ul id="all">
+        {% for course in courses %}
+            <li>
+                <a href="/courses/{{ course['number'] }}">{{ course["name"] }}</a>
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}

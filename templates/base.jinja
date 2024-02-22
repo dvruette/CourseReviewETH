@@ -37,7 +37,11 @@
 
     <body>
         {% include 'components/menu.jinja' %}
-        {% block content %}{% endblock %}
+        <div id="content">
+            <div id="columnA">
+                {% block content %}{% endblock %}
+            </div>
+        </div>
         {% include 'components/footer.jinja' %}
     </body>
 </html>

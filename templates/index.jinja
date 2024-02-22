@@ -49,7 +49,7 @@
                                 var li = document.createElement("li");
                                 var link = document.createElement("a");
                                 link.textContent = row.CourseName;
-                                link.href = "?course=" + row.CourseNumber;
+                                link.href = "/courses/" + row.CourseNumber;
                                 li.appendChild(link);
                                 latest.appendChild(li);
                             }
@@ -62,9 +62,9 @@
 
             <h3>Welcome!</h3>
             <p>Here you can add and read reviews of courses from ETHZ!</p>
-            <a href="add/">Add a review!</a> <br>
-            <a href="edit/">Edit your existing reviews!</a> <br>
-            <a href="all.php">All courses with reviews!</a> <br>
+            <a href="add">Add a review!</a> <br>
+            <a href="edit">Edit your existing reviews!</a> <br>
+            <a href="all">All courses with reviews!</a> <br>
             <a href="https://ergebnisseub.sp.ethz.ch/" target="_blank">Results of the Teaching evaluation</a> <br>
             <a href="https://addons.mozilla.org/en-GB/firefox/addon/vvz-coursereview/" target="_blank">VVZ extension for Firefox</a> <br>
             <a href="https://chrome.google.com/webstore/detail/vvz-coursereview/pjgjdmehkhpdhlpdgfbbpgekfajlhhgn" target="_blank">VVZ extension for Chrome</a> <br>

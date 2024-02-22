@@ -1,0 +1,79 @@
+{% extends 'base.jinja' %}
+
+{% block content %}
+    <div id="content">
+        <div id="columnA">
+            {% if course %}
+                Your search didn't find an exact result, so here are the closest ones: <br>
+                <ol>
+                    {% for c in all_courses %}
+                        <li><a href="/courses/{{ course['number'] }}">{{ course['number'] }} <b>{{ course['name'] }}</b></a></li>
+                    {% endfor %}
+                </ol>
+            {% endif %}
+
+            <form method="post" action="#">
+                <input id="search" list="courses" name="course" placeholder="Search for Reviews">
+                <datalist id="courses">
+                </datalist>
+                <input id="searchbutton" type="submit" value="Search">
+            </form>
+
+
+            <script>
+                //get stats
+                {
+                    var xmlhttp = new XMLHttpRequest();
+                    xmlhttp.onload = function() {
+                        if (this.status == 200) {
+                            var total = document.getElementById("total");
+                            var percourse = document.getElementById("percourse");
+                            var resp = JSON.parse(JSON.parse(this.responseText))[0];
+                            total.textContent = resp.total;
+                            percourse.textContent = resp.percourse;
+                        }
+                    }
+                    xmlhttp.open("GET", "https://rubberducky.vsos.ethz.ch:1855/stats", true);
+                    xmlhttp.send();
+
+                }
+
+                //get latest
+                {
+                    var xmlhttp = new XMLHttpRequest();
+                    xmlhttp.onload = function() {
+                        if (this.status == 200) {
+                            var latest = document.getElementById("latest");
+                            var resp = JSON.parse(JSON.parse(this.responseText));
+                            for (row of resp) {
+                                var li = document.createElement("li");
+                                var link = document.createElement("a");
+                                link.textContent = row.CourseName;
+                                link.href = "?course=" + row.CourseNumber;
+                                li.appendChild(link);
+                                latest.appendChild(li);
+                            }
+                        }
+                    }
+                    xmlhttp.open("GET", "https://rubberducky.vsos.ethz.ch:1855/latestReviews", true);
+                    xmlhttp.send();
+                }
+            </script>
+
+            <h3>Welcome!</h3>
+            <p>Here you can add and read reviews of courses from ETHZ!</p>
+            <a href="add/">Add a review!</a> <br>
+            <a href="edit/">Edit your existing reviews!</a> <br>
+            <a href="all.php">All courses with reviews!</a> <br>
+            <a href="https://ergebnisseub.sp.ethz.ch/" target="_blank">Results of the Teaching evaluation</a> <br>
+            <a href="https://addons.mozilla.org/en-GB/firefox/addon/vvz-coursereview/" target="_blank">VVZ extension for Firefox</a> <br>
+            <a href="https://chrome.google.com/webstore/detail/vvz-coursereview/pjgjdmehkhpdhlpdgfbbpgekfajlhhgn" target="_blank">VVZ extension for Chrome</a> <br>
+
+
+            <b id="total"> </b> reviews & ratings for <b id="percourse"> </b> courses have been published so far.
+            <br> Courses with the newest Reviews:
+            <ul id="latest">
+            </ul>
+        </div>
+    </div>
+{% endblock %}

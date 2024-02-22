@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="Content-Security-Policy">
+        <title>CourseReview</title>
+        <!-- <?php include "meta.php" ?> -->
+        <meta property="og:url" content="{{ request.url }}">
+        <meta property="og:title" content="CourseReview Homepage">
+        <link rel="icon" href="{{ url_for('static', filename='icon.png') }}" type="image/icon type">
+        <meta name="viewport" content="width=device-width">
+        <meta name="keywords" content="" />
+        <meta name="description" content="Homepage of CourseReview, list of last reviewed Courses, search to find reviews of courses and other links to helpful stuff about ETHZ." />
+        <link href="{{ url_for('static', filename='main.css') }}" rel="stylesheet" type="text/css" />
+    </head>
+
+    <script>
+        {
+            var xmlhttp = new XMLHttpRequest();
+            xmlhttp.onload = function() {
+                if (this.status === 200) {
+                    var dataList = document.getElementById("courses");
+                    var jsonOptions = JSON.parse(this.responseText);
+
+                    jsonOptions.forEach(function(item) {
+                        var option = document.createElement('option');
+                        option.value = item;
+                        dataList.appendChild(option);
+                    });
+                }
+            }
+            xmlhttp.open("GET", "https://n.ethz.ch/~lteufelbe/coursereview/courses.json", true);
+            xmlhttp.send();
+        }
+    </script>
+
+
+    <body>
+        {% include 'components/menu.jinja' %}
+        {% block content %}{% endblock %}
+        {% include 'components/footer.jinja' %}
+    </body>
+</html>

@@ -41,6 +41,7 @@ def get_reviews(course_number: str) -> list[Review]:
     reviews = [Review(review=review["Review"], semester=review["Semester"]) for review in result]
     return reviews
 
+
 @app.route("/")
 def index():
     course = request.args.get("course", None)
@@ -50,6 +51,7 @@ def index():
         scores = sorted([(fuzz.ratio(query, course), course) for course in COURSES], reverse=True)
         results = [course for _, course in scores[:5]]
     return stream_template("index.jinja", courses=results, course=course)
+
 
 @app.route("/courses/<course_number>")
 def course(course_number: str):
@@ -66,10 +68,12 @@ def course(course_number: str):
 
     return stream_template("course.jinja", rating=rating, reviews=reviews, course=course)
 
+
 @app.route("/all")
 def all():
     courses = sorted(COURSES, key=lambda x: x["name"])
     return stream_template("all.jinja", courses=courses)
+
 
 if __name__ == "__main__":
     app.run(debug=True)

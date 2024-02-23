@@ -1,13 +1,25 @@
 import json
+from datetime import datetime
 from dataclasses import dataclass
 
 import requests
 from flask import Flask, stream_template, request
+from flask_oidc import OpenIDConnect
 from thefuzz import fuzz
 
-from all_courses import COURSES
+from courses import get_courses
 
 app = Flask(__name__)
+
+app.config.update({
+    'SECRET_KEY': "secret",
+    'OIDC_CLIENT_SECRETS': 'client_secrets.json',
+})
+oidc = OpenIDConnect(app)
+
+
+COURSES = get_courses()
+print(f"Loaded {len(COURSES)} courses")
 
 
 @dataclass
@@ -41,6 +53,37 @@ def get_reviews(course_number: str) -> list[Review]:
     reviews = [Review(review=review["Review"], semester=review["Semester"]) for review in result]
     return reviews
 
+def find_course(course_number: str):
+    if not course_number:
+        return None
+    matches = [course for course in COURSES if course["number"] == course_number]
+    if len(matches):
+        return matches[0]
+    return None
+
+
+@app.route('/add', defaults={'course_number': None})
+@app.route('/add/<course_number>')
+@oidc.require_login
+def add(course_number: str):
+    courses = sorted(COURSES, key=lambda x: x["name"])
+    course = find_course(course_number)
+
+    year, month = datetime.now().year, datetime.now().month
+    year = year - 2000 if year > 2000 else year - 1900
+    semesters = []
+    if month > 6:
+        semesters.append(f"HS{year}")
+    semesters.append(f"FS{year}")
+    for i in range(1, 6):
+        semesters.append(f"HS{year - i}")
+        semesters.append(f"FS{year - i}")
+
+    default_semester = semesters[1] if len(semesters) > 1 else ""
+
+    rating = Rating(0, 0, 0, 0, 0)
+
+    return stream_template("add.jinja", semesters=semesters, default_semester=default_semester, courses=courses, course=course, rating=rating)
 
 @app.route("/")
 def index():
@@ -55,16 +98,13 @@ def index():
 
 @app.route("/courses/<course_number>")
 def course(course_number: str):
-    course = None
+    course = find_course(course_number)
     rating = None
     reviews = None
 
-    if course_number:
-        matches = [course for course in COURSES if course["number"] == course_number]
-        if len(matches):
-            course = matches[0]
-            rating = get_ratings(course_number)
-            reviews = get_reviews(course_number)
+    if course:
+        rating = get_ratings(course_number)
+        reviews = get_reviews(course_number)
 
     return stream_template("course.jinja", rating=rating, reviews=reviews, course=course)
 
@@ -76,4 +116,4 @@ def all():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="localhost", port=5000, debug=True)

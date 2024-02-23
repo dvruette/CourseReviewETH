@@ -1,0 +1,70 @@
+{% extends 'base.jinja' %}
+
+{% macro render_rating(label, tooltip, name, rating) %}
+    {{ label }}
+    <div class="tooltip">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-info-circle" viewBox="0 0 16 16">
+            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+            <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z" />
+        </svg>
+        <span class="tooltiptext">{{ tooltip }}</span>
+    </div>
+    <div class="rating">
+        {% for i in range(5, 0, -1) %}
+            <input type="radio" name="{{ name }}" value="{{ i }}" id="{{ rating }}{{ name }}{{ i }}" {{ 'checked' if i <= rating else '' }}><label for="{{ rating }}{{ name }}{{ i }}">☆</label>
+        {% endfor %}
+    </div>
+{% endmacro %}
+
+{% block content %}
+    <p><b>Add a CourseReview here.</b><br>
+    <form method="post" action="#">
+        <fieldset>
+            <legend>Review</legend>
+            <p>
+                <label for="course">Course number:</label><br>
+                <input list="courses" id="course" name="course" placeholder="252-0027-00L" pattern="[A-Z0-9]{3}-[A-Z0-9]{4}-[A-Z0-9]{3}( .*)?" value="{{ course['number'] if course else '' }}" required>
+                <datalist id="courses">
+                    {% for course in courses %}
+                        <option value="{{ course['number'] }} {{ course['name'] }}">
+                    {% endfor %}
+                </datalist>
+            </p>
+            <p>
+                <label>Review:</label><br>
+                <textarea name="review" id="review_text" rows="4" placeholder="For some very hard, while others who already have knowledge about the content it is very easy."></textarea>
+            </p>
+            <script>
+                if (localStorage.text) {
+                    document.getElementById('review_text').innerHTML = localStorage.review_text;
+                }
+                const input = document.querySelector('textarea');
+                input.addEventListener('input', updateValue);
+
+                function updateValue(e) {
+                    localStorage.review_text = e.target.value;
+                }
+            </script>
+            <br>
+            <p>
+                Took it in Semester: <br>
+                <select name="semester">
+                    {% for semester in semesters %}
+                        <option value="{{ semester }}" {{ 'selected' if semester == default_semester else '' }}>{{ semester }}</option>
+                    {% endfor %}
+                </select>
+            </p>
+            <br>
+
+            {{ render_rating("Would <b>recommend</b> it ", "1 no, 5 yes", "Recommended", rating.recommended) }}
+            {{ render_rating("<b>Interesting</b> content ", "1 boring, 5 very interesting", "Interesting", rating.interesting) }}
+            {{ render_rating("Approriate <b>difficulty</b> ", "1 very hard, 5 very easy", "Difficulty", rating.difficulty) }}
+            {{ render_rating("Approriate amount of <b>effort</b> ", "1 worst, 5 best", "Effort", rating.effort) }}
+            {{ render_rating("Amount and quality of <b>resources</b> ", "1 worst, 5 best", "Resources", rating.resources) }}
+
+            <p>
+                <button type="submit">Submit</button>
+            </p>
+        </fieldset>
+    </form>
+{% endblock %}

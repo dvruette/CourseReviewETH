@@ -1,4 +1,7 @@
-COURSES = [
+import json
+import requests
+
+STATIC_COURSES = [
     {
         "number": "263-5056-00L",
         "name": "Applications of Deep Learning on Graphs"
@@ -672,3 +675,20 @@ COURSES = [
         "name": "Das Pers\u00f6nliche und der Computer. Zur Geschichte des PC"
     }
 ]
+
+def get_courses(url="https://n.ethz.ch/~lteufelbe/coursereview/courses.json"):
+    try:
+        course_strings = requests.get(url).json()
+        parsed_courses = []
+        for course_str in course_strings:
+            number = course_str[:12].strip()
+            name = course_str[12:].strip()
+            parsed_courses.append({
+                "number": number,
+                "name": name
+            })
+        return parsed_courses
+    except Exception as e:
+        print(e)
+        print("Falling back to static courses.")
+        return STATIC_COURSES

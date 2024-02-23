@@ -1,9 +1,10 @@
 import json
 from datetime import datetime
 from dataclasses import dataclass
+import re
 
 import requests
-from flask import Flask, stream_template, request
+from flask import Flask, stream_template, request, redirect
 from flask_oidc import OpenIDConnect
 from thefuzz import fuzz
 
@@ -38,6 +39,9 @@ class Review:
 def get_ratings(course_number: str) -> Rating:
     url = f"https://rubberducky.vsos.ethz.ch:1855/rating/{course_number}"
     result = json.loads(requests.get(url).json())[0]
+    if any(result[key] is None for key in result):
+        return None
+
     rating = Rating(
         recommended=result["AVG(Recommended)"],
         interesting=result["AVG(Interesting)"],
@@ -87,13 +91,16 @@ def add(course_number: str):
 
 @app.route("/")
 def index():
-    course = request.args.get("course", None)
+    query = request.args.get("query", "")
     results = []
-    if course:
-        query = course.lower()
-        scores = sorted([(fuzz.ratio(query, course), course) for course in COURSES], reverse=True)
+    if query:
+        exact_match = re.search(r"[A-Z0-9]{3}-[A-Z0-9]{4}-[A-Z0-9]{3}", query)
+        if exact_match:
+            return redirect(f"/courses/{exact_match.group(0)}")
+        scores = sorted([(fuzz.ratio(query.lower(), f"{course['number']} {course['name']}".lower()), course) for course in COURSES], reverse=True, key=lambda x: x[0])
         results = [course for _, course in scores[:5]]
-    return stream_template("index.jinja", courses=results, course=course)
+    sorted_courses = sorted(COURSES, key=lambda x: x["name"])
+    return stream_template("index.jinja", courses=sorted_courses, search_results=results, query=query)
 
 
 @app.route("/courses/<course_number>")

@@ -10,32 +10,32 @@
     {% if course %}
         <h3>{{ course["number"] }} {{ course["name"] }}</h3>
 
-        <div>
+        {% if rating %}
             <div>
-                Would <b>recommend</b> it
-                {{ rating_stars(rating.recommended) }}
+                <div>
+                    Would <b>recommend</b> it
+                    {{ rating_stars(rating.recommended) }}
+                </div>
+                <div>
+                    <b>Interesting</b> content
+                    {{ rating_stars(rating.interesting) }}
+                </div>
+                <div>
+                    Approriate <b>difficulty</b>
+                    {{ rating_stars(rating.difficulty) }}
+                </div>
+                <div>
+                    Appropriate amount of <b>effort</b>
+                    {{ rating_stars(rating.effort) }}
+                </div>
+                <div>
+                    Amount and quality of <b>resources</b>
+                    {{ rating_stars(rating.resources) }}
+                </div>
             </div>
-            <div>
-                <b>Interesting</b> content
-                {{ rating_stars(rating.interesting) }}
-            </div>
-            <div>
-                Approriate <b>difficulty</b>
-                {{ rating_stars(rating.difficulty) }}
-            </div>
-            <div>
-                Appropriate amount of <b>effort</b>
-                {{ rating_stars(rating.effort) }}
-            </div>
-            <div>
-                Amount and quality of <b>resources</b>
-                {{ rating_stars(rating.resources) }}
-            </div>
-        </div>
+        {% endif %}
 
-        {% if reviews.length == 0 %}
-            There is no review here yet. Would be nice if you add one if you took this course.
-        {% else %}
+        {% if reviews %}
             <div id="reviews">
                 {% for review in reviews %}
                     <br>
@@ -49,6 +49,8 @@
                     </div>
                 {% endfor %}
             </div>
+        {% else %}
+            There is no review here yet. Would be nice if you add one if you took this course.
         {% endif %}
     {% else %}
         <p>This course number is not correct! If you think there should be a course with that number please contact me.</p>
